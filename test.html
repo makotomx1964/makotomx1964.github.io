@@ -1,37 +1,74 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Supabase Web Test</title>
+  <title>Supabase GitHub Login Test</title>
 
   <!-- CDN版 Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    button { margin: 0.2rem; }
+    #output { background: #f0f0f0; padding: 1rem; white-space: pre-wrap; max-height: 300px; overflow: auto; }
+  </style>
 </head>
 <body>
 
-<h2>Supabase Web Test</h2>
+<h2>Supabase GitHub Login Test</h2>
 
-<button id="btn-insert">Insert</button>
-<button id="btn-select">Select</button>
+<div id="login-form">
+  <button id="btn-login-github">GitHubでログイン</button>
+  <button id="btn-logout">ログアウト</button>
+</div>
 
-<pre id="output"></pre>
+<div id="app" style="display:none;">
+  <button id="btn-insert">Insert</button>
+  <button id="btn-select">Select</button>
+  <pre id="output"></pre>
+</div>
 
-<script>
-  // ★ CDN版ではここが必須 ★
+<script type="module">
   const { createClient } = supabase;
 
-    const SUPABASE_URL = "https://tpdpqohmdpngotidsccw.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwZHBxb2htZHBuZ290aWRzY2N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MTEyNzcsImV4cCI6MjA3OTM4NzI3N30.A9mLIcPNtW37WqqONdbEMSgebvb9l8D5A4MQpqaMjAc";
+  // Supabase URL / 公開 anon key
+  const SUPABASE_URL = "https://tpdpqohmdpngotidsccw.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwZHBxb2htZHBuZ290aWRzY2N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MTEyNzcsImV4cCI6MjA3OTM4NzI3N30.A9mLIcPNtW37WqqONdbEMSgebvb9l8D5A4MQpqaMjAc";
 
-  // クライアント作成
   const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
   const out = (msg) => {
-    document.getElementById("output").textContent += msg + "\n";
+    const pre = document.getElementById("output");
+    pre.textContent = msg + "\n" + pre.textContent;
   };
 
-  // INSERT
+  const loginForm = document.getElementById("login-form");
+  const appDiv = document.getElementById("app");
+
+  // --- GitHub ログイン ---
+  document.getElementById("btn-login-github").onclick = async () => {
+    const { data, error } = await client.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: 'https://yourusername.github.io/' // ← GitHub Pages URL
+      }
+    });
+    if (error) {
+      out("GitHub ログイン失敗: " + error.message);
+    } else {
+      out("GitHub ログイン開始…");
+      // ここではリダイレクトされるので、続きはページロード時に処理
+    }
+  };
+
+  // --- ログアウト ---
+  document.getElementById("btn-logout").onclick = async () => {
+    await client.auth.signOut();
+    out("ログアウトしました");
+    loginForm.style.display = "block";
+    appDiv.style.display = "none";
+  };
+
+  // --- INSERT / SELECT ---
   document.getElementById("btn-insert").onclick = async () => {
     const { data, error } = await client
       .from("messages")
@@ -41,7 +78,6 @@
     out(JSON.stringify({ data, error }, null, 2));
   };
 
-  // SELECT
   document.getElementById("btn-select").onclick = async () => {
     const { data, error } = await client
       .from("messages")
@@ -51,6 +87,15 @@
     out("SELECT:");
     out(JSON.stringify({ data, error }, null, 2));
   };
+
+  // --- ページロード時にログイン状態を確認 ---
+  client.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      out("ログイン済み: " + session.user.email);
+      loginForm.style.display = "none";
+      appDiv.style.display = "block";
+    }
+  });
 
 </script>
 
