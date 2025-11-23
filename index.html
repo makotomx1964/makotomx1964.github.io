@@ -89,6 +89,14 @@
   const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwZHBxb2htZHBuZ290aWRzY2N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MTEyNzcsImV4cCI6MjA3OTM4NzI3N30.A9mLIcPNtW37WqqONdbEMSgebvb9l8D5A4MQpqaMjAc";
   const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // page-main が表示される直前に実行
+  $(document).on("pagebeforeshow", "#page-main", async function () {
+    console.log("page-main 表示前の処理実行");
+
+    // 例: Supabase SELECT を自動実行
+    await loadURLS();
+  });  
+
   const out = (msg) => {
     const pre = document.getElementById("output");
     pre.textContent = msg + "\n" + pre.textContent;
@@ -152,26 +160,27 @@
     return data;
   }
 
+  async function loadURLS()
+  {
+      const row = await loadMyUrl();
+      if (!row) return;
+      const list = $("#ref-list");
+      list.empty();
+      list.append(`
+        <li>
+          <a href="${row.url}" target="_blank">
+            Golf Scores<br>
+            <small>${row.url}</small><br>
+            <small>${row.updated_at}</small>
+          </a>
+        </li>
+      `);
+      list.listview("refresh");
+      out("SELECT:\n" + JSON.stringify(row, null, 2));
+  }
+
   $("#btn-select").on("click", async () => {
-    const row = await loadMyUrl();
-    if (!row) return;
-
-    const list = $("#ref-list");
-    list.empty();
-
-    list.append(`
-      <li>
-        <a href="${row.url}" target="_blank">
-           Golf Scores<br>
-           <small>${row.url}</small><br>
-           <small>${row.updated_at}</small>
-        </a>
-      </li>
-    `);
-
-    list.listview("refresh");
-
-    out("SELECT:\n" + JSON.stringify(row, null, 2));
+    await loadURLS();
   });
 
   // 現在ログインしているか確認
