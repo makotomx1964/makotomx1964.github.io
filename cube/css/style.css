@@ -1,0 +1,103 @@
+.grid {
+    display: grid;
+    grid-template-columns: repeat(12, 30px);
+    grid-template-rows: repeat(9, 30px);
+    gap: 2px;
+    margin: 20px auto;
+    width: max-content;
+}
+
+.sticker {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ccc;
+    background-color: gray;
+    box-sizing: border-box;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.sticker.center {
+    cursor: default;
+    font-weight: bold;
+    border: 2px solid black;
+}
+
+.face-U { grid-column: 4 / span 3; grid-row: 1 / span 3; }
+.face-L { grid-column: 1 / span 3; grid-row: 4 / span 3; }
+.face-F { grid-column: 4 / span 3; grid-row: 4 / span 3; }
+.face-R { grid-column: 7 / span 3; grid-row: 4 / span 3; }
+.face-B { grid-column: 10 / span 3; grid-row: 4 / span 3; }
+.face-D { grid-column: 4 / span 3; grid-row: 7 / span 3; }
+
+.face {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+
+button {
+    margin-top: 20px;
+}
+
+.btn2 {
+    display: inline-block;
+    margin: 4px;
+    padding: 8px;
+    background: #81D4FA;
+    box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, .5);
+}
+.btn {
+    display: inline-block;
+    margin: 4px;
+    padding: 8px;
+    background: #81D4FA;
+    box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, .5);
+}
+.btn-inactive {
+    background: #999999;
+}
+
+/* body { margin: 0; overflow: hidden; } */
+
+#ui {
+    position: absolute;
+    top: 10px; left: 550px;
+    background: rgba(255,255,255,0.9);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.equal-buttons .ui-controlgroup-controls {
+    display: flex !important;
+}
+.equal-buttons .ui-btn {
+    flex: 1 1 0;
+    text-align: center;
+}
+
+.inline-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 1em;
+}
+
+
+.inline-group > * {
+    flex: 1;  /* ← 各要素が均等な幅になる */
+    text-align: center;
+}
+
+/* optional: prevent shrinking too small on narrow screens */
+.inline-group > input[type="checkbox"] {
+    max-width: 30px;
+}
+
+.inline-group .ui-btn {
+    margin: 0;  /* ボタンの余白をなくす（好みに応じて） */
+}

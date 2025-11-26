@@ -1,0 +1,307 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<title>jQuery Mobile Demos</title>
+
+  <!-- jQuery + jQuery Mobile -->
+	<link rel="stylesheet" href="./lib/jquery/css/jquery.mobile-1.4.5.min.css">
+	<script src="./lib/jquery/js/jquery.js"></script>
+	<script src="./lib/jquery/js/jquery.mobile-1.4.5.min.js"></script>
+  <!--
+  <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  -->
+
+  <!-- Google Material ICONS  -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+ 
+  <!-- Google Fonts  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Paytone+One&family=Luckiest+Guy&family=BBH+Sans+Hegarty&family=Cherry+Bomb+One&family=Dela+Gothic+One&family=Train+One&display=swap" rel="stylesheet">
+
+  <!-- 3D Conttrols -->
+  <script src="https://unpkg.com/three@0.142.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.142.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- Cube JS の UMD ビルドを読み込む -->
+  <script src="./lib/cubejs/cube.js"></script>
+  <script src="./lib/cubejs/solve.js"></script>
+
+  <!-- LOCAL CSS / Java Script -->
+  <link rel="stylesheet" href="css/style.css">
+  <script src="./js/cubectrl.js"></script>
+  <script src="./js/cube-state.js"></script>
+  <script src="./js/cube_3d.js"></script>
+
+<style>
+   
+</style>
+<style>
+  .ui-btn.material-home::before {
+    content: "home";
+    font-family: 'Material Icons';
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  /* スピナーのスタイル */
+  /* 背景のオーバーレイ */
+  .spinner-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+  }
+        
+  /* スピナー */
+  .spinner {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+  }
+        
+  /* 経過時間表示 */
+  .spinner-msg {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      color: black;
+      font-weight: bold;
+      z-index: 1001;
+  }
+        
+  @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+
+</style>
+
+</head>
+
+<body>
+
+<!-- Start of first page: #one -->
+<div data-role="page" id="one" data-url="one" data-theme="Z" style="background-color:rgba(255,255,255,0.6);">
+
+  <!-- /header -->
+  <div data-role="header" role="banner" class="ui-header ui-bar-inherit">
+    <h1 class="ui-title" role="heading" aria-level="1">Rubic Cube Solver</h1>
+
+    <div style="position:absolute; right:0.5em; top:0; display:flex; gap:5px; height:100%; align-items:center;">
+      <a href="#menuPanel" class="ui-btn  ui-corner-all" style="border: none; margin-left: -10pt; padding:0; width:40px; height:40px; line-height:40px;">
+        <span class="material-icons" style="font-size:24px; vertical-align:middle;">menu</span>
+      </a>
+    </div>
+  </div>
+  <!-- /header -->
+
+  <div role="main" class="ui-content" id="main-content">
+    <canvas id="rubiks" width="350" height="250" style="width: 350px; height: 250px; touch-action: none;"></canvas>
+    <div>
+      <div id="cube-state-visual" style="display: flex; gap: 20px; font-family: monospace;"></div>
+      <!-- 横並びボタン -->
+      <!--
+      <div class="inline-group">
+        <button data-role="button" class="ui-btn ui-corner-all ui-btn-inline" id="initBtn">初期化</button>
+        <button data-role="button" class="ui-btn ui-corner-all ui-btn-inline" id="scrambleBtn">スクランブル</button>
+        <button data-role="button" class="ui-btn ui-corner-all ui-btn-inline" id="solveBtn">解析</button>
+      </div>
+      -->    
+      <div style="display: none;">
+        <p id="status">status...</p>
+        <p id="status2">status2...</p>
+        <p id="moves">moves...</p>
+      </div>
+      <p id="move"></p>
+
+      <div style="display: yes;">
+        <div style="display: flex; align-items: flex-start;">
+          <label for="movestep" style="margin-right: 8px;border:none ;"></label>
+          <p id="movestep" style="border:none ;width: 80%; margin: 0;"></p>
+        </div>
+        <div style="display: flex; align-items: flex-start;">
+          <label for="movestepRVS" style="margin-right: 8px;border:none ;"></label>
+          <p id="movestepRVS" style="border:none ;width: 80%; margin: 0;"></p>
+        </div>
+      </div>
+
+      <div class="inline-group" style="display: yes;">
+        <button data-role="button" class="ui-btn ui-corner-all ui-btn-inline moveStepsSolo">Solved Move</button>
+
+        <!-- チェックボックス -->
+        <input type="checkbox" name="scales" id="scales" data-mini="true" checked>
+        <label for="scales">Continuous</label>
+      </div>
+
+      <div class="inline-group" style="display: yes;">
+        <button data-role="button" class="ui-btn ui-corner-all ui-btn-inline moveStepsReverseSolo">Reverse Move</button>
+
+        <!-- チェックボックス -->
+        <input type="checkbox" name="scales2" id="scales2" data-mini="true" checked>
+        <label for="scales2">Continuous</label>
+        <button id="stepBtn3"  style="display: none;">手順変換</button></p>
+      </div>
+    </div>
+
+    <div class="inline-group">
+      <button id="stepL" class="ui-btn ui-corner-all ui-btn-inline btn btn-rotate" data-dir="R">Right</button>
+      <button id="stepL" class="ui-btn ui-corner-all ui-btn-inline btn btn-rotate" data-dir="L">Left</button>
+      <button id="stepU" class="ui-btn ui-corner-all ui-btn-inline btn btn-rotate" data-dir="U">Upper</button>
+      <button id="stepD" class="ui-btn ui-corner-all ui-btn-inline btn btn-rotate" data-dir="D">Down</button>
+      <button id="stepF" class="ui-btn ui-corner-all ui-btn-inline btn btn-rotate" data-dir="F">Front</button>
+      <button id="stepB" class="ui-btn ui-corner-all ui-btn-inline btn btn-rotate" data-dir="B">Back</button>
+    </div>
+
+    <div class="inline-group">
+      <button id="stepRR" class="ui-btn ui-corner-all ui-btn-inline btn btn-rotate" data-dir="R'">'Right</button>
+      <button id="stepLL" class="ui-btn ui-corner-all ui-btn-inline btn btn-rotate" data-dir="L'">'Left</button>
+      <button id="stepUU" class="ui-btn ui-corner-all ui-btn-inline btn btn-rotate" data-dir="U'">'Upper</button>
+      <button id="stepDD" class="ui-btn ui-corner-all ui-btn-inline btn btn-rotate" data-dir="D'">'Down</button>
+      <button id="stepFF" class="ui-btn ui-corner-all ui-btn-inline btn btn-rotate" data-dir="F'">'Front</button>
+      <button id="stepBB" class="ui-btn ui-corner-all ui-btn-inline btn btn-rotate" data-dir="B'">'Back</button>
+    </div>
+
+    <div class="inline-group">
+      <a class="ui-btn ui-corner-all ui-btn-inline" href="cube2.html#" id="reset-camera">視点をリセット</a>
+      <a class="ui-btn ui-corner-all ui-btn-inline" href="cube2.html#" id="reset-camera-bottom">視点を下から</a>
+      <a class="ui-btn ui-corner-all ui-btn-inline" href="cube2.html#" id="reset-camera-reverse">視点を反対側から</a>
+    </div>
+  </div>
+
+  <!-- メニューの中身 -->
+  <div data-role="panel" id="menuPanel" data-display="overlay" data-position="right" style="background-color:white;">
+      <ul data-role="listview">
+          <li><a href="#" class="scoreinput" id = "initBtn" data-rel="close">🛠️ 初期化</a></li>
+          <li><a href="#" class="scoreinput" id = "resetSate" data-rel="close">📚 Cube 再設定</a></li>
+          <li><a href="#" class="scoreinput" id = "scrambleBtn" data-rel="close">🛠️ スクランブル</a></li>
+          <li><a href="#" class="scoreinput" id = "solveBtn" data-rel="close">🛠️ Cube 解析</a></li>
+          <li><a href="#" class="moveSteps"        data-rel="close">🛠️ Cube Solve</a></li>
+          <li><a href="#" class="moveStepsReverse" data-rel="close">🛠️ Cube Solve(Reverse)</a></li>
+          <li><a href="#" class="scoreinput" id = "getSate" data-rel="close">🛠️ Cube 詳細</a></li>
+          
+          <li>
+            <a href="#two"
+              data-transition="slide"
+              data-direction="reverse"
+              data-rel="close"
+              data-position="right">📊 Cube展開</a>
+          </li>
+          <!--
+            <button data-role="button" class="ui-btn ui-corner-all ui-btn-inline" id="initBtn">初期化</button>
+            <button data-role="button" class="ui-btn ui-corner-all ui-btn-inline" id="scrambleBtn">スクランブル</button>
+            <button data-role="button" class="ui-btn ui-corner-all ui-btn-inline" id="solveBtn">解析</button>
+          -->
+
+        </ul>
+  </div>
+
+  <!-- スピナー、タイマー、プログレスバー -->
+  <div class="spinner-overlay">
+      <div class="spinner"></div>
+      <div class="spinner-msg"></div>
+  </div>
+
+</div><!-- /page one -->
+
+<!-- Start of second page: #two -->
+<div data-role="page" id="two" data-url="one" data-theme="Z" style="background-color:rgba(255,255,255,0.6);">
+  <div data-role="header" role="banner" class="ui-header ui-bar-inherit">
+    <a href="#one" class="deletescores ui-btn" style="border: none;"><span class="material-icons">home</span></a>
+    <h1 class="ui-title" role="heading" aria-level="1">Rubic Cube Solver(detail)</h1>
+
+    <!-- 左側配置 -->
+    <div style="position:absolute; right:0.5em; top:0; display:flex; gap:5px; height:100%; align-items:center;">
+      <!--
+      <a href="#one" class="deletescores ui-btn" style="border: none;"><span class="material-icons">home</span></a>
+      -->
+    </div>
+  </div><!-- /header -->
+
+  <div role="main" class="ui-content" >
+  <h2 >低温調理加熱時間</h2>
+      <h3 style="text-align:center;">ルービックキューブ 面展開UI（センター固定＋ID表示）</h3>
+
+      <div class="grid" id="cube-container">
+          <div class="face face-U" id="U"></div>
+          <div class="face face-L" id="L"></div>
+          <div class="face face-F" id="F"></div>
+          <div class="face face-R" id="R"></div>
+          <div class="face face-B" id="B"></div>
+          <div class="face face-D" id="D"></div>
+      </div>
+
+      <div style="text-align:center;">
+          <div class="inline-group">
+            <button onclick="applyCubeStateTo3D()">現在の状態を展開</button>
+            <button onclick="resetCubeState()">現在の状態を初期化</button>
+          </div>
+          <pre id="output"></pre>
+      </div>
+
+  </div><!-- /content -->
+
+  <div data-role="footer" data-theme="Z">
+    <h4>Copyright 1964-2024, MURAKAMI.makoto</h4>
+  </div><!-- /footer -->
+
+</div><!-- /page two -->
+
+
+<script>
+    faceOrder.forEach(face => {
+        const container = document.getElementById(face);
+        const initColors = faceInit[face];
+
+        for (let i = 0; i < 9; i++) {
+        const sticker = document.createElement("div");
+        const color = initColors[i];
+        const idx = colors.indexOf(color);
+        const stickerId = `${face}${i + 1}`;
+
+        sticker.className = "sticker";
+        sticker.textContent = stickerId;
+        sticker.dataset.colorIndex = idx;
+        sticker.style.backgroundColor = color;
+
+        if (i === 4) {
+            // センターマス（U5, R5...）は固定
+            sticker.classList.add("center");
+        } else {
+            sticker.addEventListener("click", () => {
+            let index = (parseInt(sticker.dataset.colorIndex) + 1) % colors.length;
+            sticker.dataset.colorIndex = index;
+            sticker.style.backgroundColor = colors[index];
+            });
+        }
+
+        container.appendChild(sticker);
+        }
+    });
+</script>
+
+
+</body>
+
+</html>
